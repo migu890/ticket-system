@@ -40,10 +40,12 @@ jobs:
         run: npm ci
 
       - name: Prisma Client generieren
-        run: npx prisma generate --schema=backend/prisma/schema.prisma
+        working-directory: backend
+        run: npx prisma generate
 
       - name: Datenbank vorbereiten
-        run: npx prisma migrate deploy --schema=backend/prisma/schema.prisma
+        working-directory: backend
+        run: npx prisma migrate deploy
 
       - name: Backend bauen
         run: npm run build -w backend
