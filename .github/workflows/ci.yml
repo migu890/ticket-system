@@ -39,6 +39,9 @@ jobs:
       - name: Dependencies installieren
         run: npm ci
 
+      - name: Shared bauen
+        run: npm run build -w shared
+
       - name: Prisma Client generieren
         working-directory: backend
         run: npx prisma generate
