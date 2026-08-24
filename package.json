@@ -1,0 +1,19 @@
+{
+  "name": "ticket-system",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "build:shared": "npm run build -w shared",
+    "build:backend": "npm run build -w backend",
+    "build:frontend": "npm run build -w frontend",
+    "build": "npm run build:shared && npm run build:backend && npm run build:frontend",
+    "typecheck": "npm run typecheck -w shared && npm run build -w backend && npm run type-check -w frontend",
+    "test:backend": "npm run test -w backend",
+    "test:frontend": "npm run test:unit -w frontend",
+    "test": "npm run test:backend && npm run test:frontend"
+  }
+}
