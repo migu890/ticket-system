@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Dependencies installieren
+        run: npm ci
+
+      - name: Shared bauen
+        run: npm run build -w shared
+
+      - name: Backend bauen
+        run: npm run build -w backend
+
+      - name: Backend Tests
+        run: npm run test -w backend
+
+      - name: Frontend Typecheck
+        run: npm run type-check -w frontend
+
+      - name: Frontend Tests
+        run: npm run test:unit -w frontend -- --run
+
+      - name: Frontend bauen
+        run: npm run build-only -w frontend
