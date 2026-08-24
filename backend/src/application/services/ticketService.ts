@@ -19,22 +19,24 @@ export const getTickets = async () => {
     }
   })
 
-  return tickets.map((ticket) => ({
-    id: ticket.id,
-    title: ticket.title,
-    description: ticket.description,
-    status: ticket.status,
-    priority: ticket.priority,
-    createdById: ticket.createdById,
-    createdByName: ticket.createdBy.name,
-    assignedToId: ticket.assignedToId,
-    assignedToName:
-      ticket.assignedTo?.name ?? null,
-    createdAt:
-      ticket.createdAt.toISOString(),
-    updatedAt:
-      ticket.updatedAt.toISOString()
-  }))
+  return tickets.map((ticket) => {
+    return {
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description,
+      status: ticket.status,
+      priority: ticket.priority,
+      createdById: ticket.createdById,
+      createdByName: ticket.createdBy.name,
+      assignedToId: ticket.assignedToId,
+      assignedToName:
+        ticket.assignedTo?.name ?? null,
+      createdAt:
+        ticket.createdAt.toISOString(),
+      updatedAt:
+        ticket.updatedAt.toISOString()
+    }
+  })
 }
 
 export const getTicketById = async (
@@ -81,7 +83,10 @@ export const createTicket = async (
   input: {
     title: string
     description: string
-    priority: 'LOW' | 'MEDIUM' | 'HIGH'
+    priority:
+      | 'LOW'
+      | 'MEDIUM'
+      | 'HIGH'
   }
 ) => {
   return prisma.ticket.create({
@@ -100,7 +105,10 @@ export const updateTicket = async (
   input: {
     title: string
     description: string
-    priority: 'LOW' | 'MEDIUM' | 'HIGH'
+    priority:
+      | 'LOW'
+      | 'MEDIUM'
+      | 'HIGH'
   }
 ) => {
   const ticket =
