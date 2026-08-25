@@ -29,13 +29,18 @@ authRoutes.post('/login', async (c) => {
       parsed.data.password
     )
 
-    setCookie(c, 'session', result.token, {
-      httpOnly: true,
-      sameSite: 'Lax',
-      secure: false,
-      path: '/',
-      maxAge: 60 * 60 * 8
-    })
+const isProduction =
+  process.env.NODE_ENV === 'production'
+
+setCookie(c, 'session', result.token, {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction
+    ? 'None'
+    : 'Lax',
+  path: '/',
+  maxAge: 60 * 60 * 8
+})
 
     return c.json(result.user)
   } catch (error) {

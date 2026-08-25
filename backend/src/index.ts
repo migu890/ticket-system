@@ -1,13 +1,15 @@
 import { serve } from '@hono/node-server'
 import { app } from './app.js'
 
-const port = 3000
+const port =
+  Number(process.env.PORT) || 3000
 
 serve({
   fetch: app.fetch,
-  port
-}, (info) => {
-  console.log(
-    `Server is running on http://localhost:${info.port}`
-  )
+  port,
+  hostname: '0.0.0.0'
 })
+
+console.log(
+  `Backend läuft auf Port ${port}`
+)
