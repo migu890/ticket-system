@@ -6,7 +6,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "vitest run --exclude dist/**",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "seed:production": "tsx prisma/seed-production.ts"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.1",
