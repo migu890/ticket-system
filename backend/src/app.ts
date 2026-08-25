@@ -1,15 +1,28 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { authRoutes } from './http/routes/authRoutes.js'
-import { ticketRoutes } from './http/routes/ticketRoutes.js'
-import { userRoutes } from './http/routes/userRoutes.js'
+
+import {
+  authRoutes
+} from './http/routes/authRoutes.js'
+
+import {
+  ticketRoutes
+} from './http/routes/ticketRoutes.js'
+
+import {
+  userRoutes
+} from './http/routes/userRoutes.js'
 
 export const app = new Hono()
+
+const frontendUrl =
+  process.env.FRONTEND_URL ??
+  'http://localhost:5173'
 
 app.use(
   '*',
   cors({
-    origin: 'http://localhost:5173',
+    origin: frontendUrl,
     credentials: true
   })
 )
@@ -20,17 +33,31 @@ app.get('/health', (c) => {
   })
 })
 
-app.route('/api/auth', authRoutes)
-app.route('/api/tickets', ticketRoutes)
-app.route('/api/users', userRoutes)
+app.route(
+  '/api/auth',
+  authRoutes
+)
 
-app.onError((error, c) => {
-  console.error(error)
+app.route(
+  '/api/tickets',
+  ticketRoutes
+)
 
-  return c.json(
-    {
-      message: 'Interner Serverfehler'
-    },
-    500
-  )
-})
+app.route(
+  '/api/users',
+  userRoutes
+)
+
+app.onError(
+  (error, c) => {
+    console.error(error)
+
+    return c.json(
+      {
+        message:
+          'Interner Serverfehler'
+      },
+      500
+    )
+  }
+)
