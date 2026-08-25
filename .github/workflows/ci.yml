@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ticket_system_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ticket_system_test
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Dependencies installieren
+        run: npm ci
+
+      - name: Shared bauen
+        run: npm run build -w shared
+
+      - name: Prisma Client generieren
+        working-directory: backend
+        run: npx prisma generate
+
+      - name: Datenbank vorbereiten
+        working-directory: backend
+        run: npx prisma migrate deploy
+
+      - name: Backend bauen
+        run: npm run build -w backend
+
+      - name: Backend Tests
+        run: npm test -w backend
