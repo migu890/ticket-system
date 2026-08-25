@@ -33,7 +33,7 @@ jobs:
       - name: Node.js einrichten
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Dependencies installieren
@@ -55,3 +55,12 @@ jobs:
 
       - name: Backend Tests
         run: npm test -w backend
+
+      - name: Frontend Typecheck
+        run: npm run type-check -w frontend
+
+      - name: Frontend Tests
+        run: npm run test:unit -w frontend -- --run
+
+      - name: Frontend bauen
+        run: npm run build-only -w frontend
