@@ -18,10 +18,6 @@ const prisma = new PrismaClient({
 })
 
 const main = async () => {
-  await prisma.session.deleteMany()
-  await prisma.ticket.deleteMany()
-  await prisma.user.deleteMany()
-
   const adminPassword = await argon2.hash(
     'Admin123!'
   )
@@ -30,8 +26,12 @@ const main = async () => {
     'User123!'
   )
 
-  const admin = await prisma.user.create({
-    data: {
+  const admin = await prisma.user.upsert({
+    where: {
+      email: 'admin@example.com'
+    },
+    update: {},
+    create: {
       name: 'Administrator',
       email: 'admin@example.com',
       passwordHash: adminPassword,
@@ -39,8 +39,12 @@ const main = async () => {
     }
   })
 
-  const alice = await prisma.user.create({
-    data: {
+  const alice = await prisma.user.upsert({
+    where: {
+      email: 'alice@example.com'
+    },
+    update: {},
+    create: {
       name: 'Alice Müller',
       email: 'alice@example.com',
       passwordHash: userPassword,
@@ -48,8 +52,12 @@ const main = async () => {
     }
   })
 
-  const bob = await prisma.user.create({
-    data: {
+  const bob = await prisma.user.upsert({
+    where: {
+      email: 'bob@example.com'
+    },
+    update: {},
+    create: {
       name: 'Bob Meier',
       email: 'bob@example.com',
       passwordHash: userPassword,
@@ -57,35 +65,40 @@ const main = async () => {
     }
   })
 
-  await prisma.ticket.createMany({
-    data: [
-      {
-        title: 'Monitor funktioniert nicht',
-        description:
-          'Der zweite Monitor wird nicht erkannt.',
-        priority: 'MEDIUM',
-        status: 'OPEN',
-        createdById: alice.id
-      },
-      {
-        title: 'Passwort zurücksetzen',
-        description:
-          'Anmeldung am Firmenkonto ist nicht möglich.',
-        priority: 'HIGH',
-        status: 'IN_PROGRESS',
-        createdById: bob.id,
-        assignedToId: admin.id
-      },
-      {
-        title: 'Software installieren',
-        description:
-          'Visual Studio Code wird benötigt.',
-        priority: 'LOW',
-        status: 'OPEN',
-        createdById: alice.id
-      }
-    ]
-  })
+  const existingTickets =
+    await prisma.ticket.count()
+
+  if (existingTickets === 0) {
+    await prisma.ticket.createMany({
+      data: [
+        {
+          title: 'Monitor funktioniert nicht',
+          description:
+            'Der zweite Monitor wird nicht erkannt.',
+          priority: 'MEDIUM',
+          status: 'OPEN',
+          createdById: alice.id
+        },
+        {
+          title: 'Passwort zurücksetzen',
+          description:
+            'Anmeldung am Firmenkonto ist nicht möglich.',
+          priority: 'HIGH',
+          status: 'IN_PROGRESS',
+          createdById: bob.id,
+          assignedToId: admin.id
+        },
+        {
+          title: 'Software installieren',
+          description:
+            'Visual Studio Code wird benötigt.',
+          priority: 'LOW',
+          status: 'OPEN',
+          createdById: alice.id
+        }
+      ]
+    })
+  }
 
   console.log('Seed erfolgreich erstellt')
 }
