@@ -17,67 +17,69 @@ const prisma = new PrismaClient({
   adapter
 })
 
+const createUserIfMissing = async (
+  name: string,
+  email: string,
+  password: string,
+  role: 'USER' | 'ADMIN'
+) => {
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      email
+    }
+  })
+
+  if (existingUser) {
+    console.log(
+      `Benutzer ${email} existiert bereits`
+    )
+
+    return
+  }
+
+  const passwordHash = await argon2.hash(
+    password
+  )
+
+  await prisma.user.create({
+    data: {
+      name,
+      email,
+      passwordHash,
+      role
+    }
+  })
+
+  console.log(
+    `Benutzer ${email} wurde erstellt`
+  )
+}
+
 const main = async () => {
-  const adminPassword = await argon2.hash(
-    'Admin123!'
+  await createUserIfMissing(
+    'Administrator',
+    'admin@example.com',
+    'Admin123!',
+    'ADMIN'
   )
 
-  const userPassword = await argon2.hash(
-    'User123!'
+  await createUserIfMissing(
+    'Alice Müller',
+    'alice@example.com',
+    'User123!',
+    'USER'
   )
 
-  await prisma.user.upsert({
-    where: {
-      email: 'admin@example.com'
-    },
-    update: {
-      name: 'Administrator',
-      passwordHash: adminPassword,
-      role: 'ADMIN'
-    },
-    create: {
-      name: 'Administrator',
-      email: 'admin@example.com',
-      passwordHash: adminPassword,
-      role: 'ADMIN'
-    }
-  })
+  await createUserIfMissing(
+    'Bob Meier',
+    'bob@example.com',
+    'User123!',
+    'USER'
+  )
 
-  await prisma.user.upsert({
-    where: {
-      email: 'alice@example.com'
-    },
-    update: {
-      name: 'Alice Müller',
-      passwordHash: userPassword,
-      role: 'USER'
-    },
-    create: {
-      name: 'Alice Müller',
-      email: 'alice@example.com',
-      passwordHash: userPassword,
-      role: 'USER'
-    }
-  })
-
-  await prisma.user.upsert({
-    where: {
-      email: 'bob@example.com'
-    },
-    update: {
-      name: 'Bob Meier',
-      passwordHash: userPassword,
-      role: 'USER'
-    },
-    create: {
-      name: 'Bob Meier',
-      email: 'bob@example.com',
-      passwordHash: userPassword,
-      role: 'USER'
-    }
-  })
-
-  console.log('Production-User erfolgreich erstellt')
+  console.log(
+    'Production-Seed erfolgreich abgeschlossen'
+  )
 }
 
 main()
